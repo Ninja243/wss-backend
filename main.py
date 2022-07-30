@@ -6,7 +6,6 @@ app = FastAPI()
 deta = Deta()
 
 client_type = None
-
 dbgSplashpage = f"""
 
  ▄         ▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄ 
@@ -26,6 +25,8 @@ Powered by https://Deta.sh
 
 Deta Project:\t{deta.project_id}
 Client Type:\t{client_type}
+Instance Slug:\t{os.getenv("DETA_PATH")}
+Running on Micro:\t{os.getenv("DETA_RUNTIME")}
 """
 
 @app.get("/init")
@@ -44,3 +45,8 @@ async def get_config():
     # Retrieve Settings
     # Retrieve Subscriptions
     return "TODO: Make redirect to android intent"
+
+
+@app.get("/console")
+async def showConsole():
+    return "TODO"
