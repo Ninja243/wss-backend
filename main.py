@@ -4,6 +4,7 @@ from fastapi import FastAPI, Response, Depends, FastAPI, HTTPException
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.responses import RedirectResponse
 from deta import Deta
+import json
 
 app = FastAPI()
 deta = Deta()
@@ -55,12 +56,12 @@ splash_screen = f"""
 
 def password_check(credentials: HTTPBasicCredentials = Depends(security)):
     base = deta.Base("wss")
-    if secrets.compare_digest(str(base.get("Password")), credentials.password):
+    if secrets.compare_digest(json.loads(str(base.get("Password")))["key"], credentials.password):
         return "admin" 
     else:
         raise HTTPException(
             status_code=401,
-            detail=f"Incorrect Login {credentials.username} {credentials.password} != {str(base.get('Password'))}",
+            detail=f"Incorrect Login",
             headers={"WWW-Authenticate": "Basic"},
         )
 
