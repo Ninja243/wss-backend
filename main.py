@@ -55,12 +55,12 @@ splash_screen = f"""
 
 def password_check(credentials: HTTPBasicCredentials = Depends(security)):
     base = deta.Base("wss")
-    if secrets.compare_digest(str(base.get("Password")), credentials.Password):
+    if secrets.compare_digest(str(base.get("Password")), credentials.password):
         return "admin" 
     else:
         raise HTTPException(
             status_code=401,
-            detail=f"Incorrect Login {credentials.username} {credentials.Password} != {str(base.get('Password'))}",
+            detail=f"Incorrect Login {credentials.username} {credentials.password} != {str(base.get('Password'))}",
             headers={"WWW-Authenticate": "Basic"},
         )
 
