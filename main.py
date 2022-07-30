@@ -6,7 +6,10 @@ app = FastAPI()
 deta = Deta()
 
 dbgSplashpage = f"""
-
+<header>
+    <title>WSS Debug Page</title>
+</header>
+<body><pre style="color:purple;">
  ▄         ▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄ 
 ▐░▌       ▐░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
 ▐░▌       ▐░▌▐░█▀▀▀▀▀▀▀▀▀ ▐░█▀▀▀▀▀▀▀▀▀ 
@@ -19,13 +22,15 @@ dbgSplashpage = f"""
 ▐░░▌     ▐░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
  ▀▀       ▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀ 
                                        
-Powered by https://deta.sh
+Powered by <a href="https://deta.sh">deta.sh</a> 
 
 
 Deta Project:\t{deta.project_id}
 Client Type:\t{os.getenv("client_type")}
 Instance Slug:\t{os.getenv("DETA_PATH")}
 Running on Micro:\t{os.getenv("DETA_RUNTIME")}
+
+</pre></body>
 """
 
 @app.get("/")
@@ -33,7 +38,7 @@ async def init():
     # Password check
     # Loading animation
     # Redirect to done
-    return dbgSplashpage
+    return Response(dbgSplashpage, 200, {}, "text/html")
 
 
 @app.get("/config")

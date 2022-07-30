@@ -1,6 +1,6 @@
 {
 	"name": "WSS Backend",
-	"description": "Your very own instance of the WSS Backend. This instance will be the server that notifies you if anything on the websites you have subscribed to has changed and will also store important info like your settings.",
+	"description": "This instance will be the server that notifies you if anything on the websites you have subscribed to has changed and will also store important info like your settings.",
 	"runtime": "python3.9",
 	"env": [
 		{
