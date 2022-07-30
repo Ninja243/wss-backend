@@ -1,9 +1,13 @@
 import os
-from fastapi import FastAPI, Response
+import secrets
+from fastapi import FastAPI, Response, Depends, FastAPI, HTTPException, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from deta import Deta
 
 app = FastAPI()
 deta = Deta()
+security = HTTPBasic()
+
 logo = """
  ▄         ▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄ 
 ▐░▌       ▐░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
@@ -63,9 +67,9 @@ async def splash():
 
 
 @app.post("/init")
-async def init(password: str):
+async def init(credentials: HTTPBasicCredentials = Depends(security)):
     base = deta.Base("wss")
-    if base.get("password") == password:
+    if secrets.compare_digest(str(base.get("password")), credentials.password):
         return Response(debug_page, media_type="text/html")
     else:
         return Response("Unauthorized", 403)
