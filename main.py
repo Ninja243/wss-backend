@@ -31,13 +31,12 @@ debug_page = f"""
 </header>
 <body><pre style="color:purple;">
 {logo}
-</pre>
 
 Deta Project:\t\t\t{deta.project_id}
 Client Type:\t\t\t{os.getenv("client_type")}
 Instance Slug:\t\t\t{os.getenv("DETA_PATH")}
-Running on Micro:\t\t\t{os.getenv("DETA_RUNTIME")}
-
+Running on Micro:\t\t{bool(os.getenv("DETA_RUNTIME"))}
+</pre>
 </body>
 """
 
@@ -56,8 +55,8 @@ splash_screen = f"""
 
 def password_check(credentials: HTTPBasicCredentials = Depends(security)):
     base = deta.Base("wss")
-    if secrets.compare_digest(str(json.loads(str(base.get("Password")))["key"]), credentials.password):
-        return "admin" 
+    if secrets.compare_digest(str(json.loads(str(base.get('Password')).replace("'", "\"")).get("value")), credentials.password):
+        return
     else:
         raise HTTPException(
             status_code=401,
@@ -76,8 +75,7 @@ async def splash():
 
     # Loading animation
     # Redirect to done
-    return json.loads(str(base.get('Password'))).get("key")
-    return RedirectResponse(f"https://{os.getenv('DETA_PATH')}.deta.dev/init")
+    return RedirectResponse(f"/init")
 
 
 @app.get("/init")
