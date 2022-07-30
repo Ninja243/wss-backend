@@ -55,12 +55,12 @@ splash_screen = f"""
 
 def password_check(credentials: HTTPBasicCredentials = Depends(security)):
     base = deta.Base("wss")
-    if secrets.compare_digest(str(base.get("password")), credentials.password):
+    if secrets.compare_digest(str(base.get("Password")), credentials.Password):
         return "admin" 
     else:
         raise HTTPException(
             status_code=401,
-            detail=f"Incorrect Login {credentials.username} {credentials.password} != {str(base.get('password'))}",
+            detail=f"Incorrect Login {credentials.username} {credentials.Password} != {str(base.get('Password'))}",
             headers={"WWW-Authenticate": "Basic"},
         )
 
@@ -69,7 +69,7 @@ async def splash():
     # Password store
     base = deta.Base("wss")
     try: # TODO hash and salt
-        base.insert(key="password", data=os.getenv("password")) # type: ignore   The env will always be set and even if it's not it will fail gracefully
+        base.insert(key="Password", data=os.getenv("Password")) # type: ignore   The env will always be set and even if it's not it will fail gracefully
     except:
         print("[!] Password already set, cannot reset")
 
