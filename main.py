@@ -81,7 +81,6 @@ async def splash():
 @app.get("/init")
 async def init(user = Depends(password_check)):
     return Response(debug_page, media_type="text/html")
-    # Check if ran first in DB
 
 @app.get("/config")
 async def get_config():
