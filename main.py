@@ -1,6 +1,6 @@
 import os
 import secrets
-from fastapi import FastAPI, Response, Depends, FastAPI
+from fastapi import FastAPI, Response, Depends, FastAPI, HTTPException
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.responses import RedirectResponse
 from deta import Deta
@@ -57,7 +57,7 @@ splash_screen = f"""
 async def splash():
     # Password store
     base = deta.Base("wss")
-    try:
+    try: # TODO hash and salt
         base.insert("password", os.getenv("password")) # type: ignore   The env will always be set and even if it's not it will fail gracefully
     except:
         print("[!] Password already set, cannot reset")
@@ -73,7 +73,11 @@ async def init(credentials: HTTPBasicCredentials = Depends(security)):
     if secrets.compare_digest(str(base.get("password")), credentials.password):
         return Response(debug_page, media_type="text/html")
     else:
-        return Response("Unauthorized", 403)
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect Login",
+            headers={"WWW-Authenticate": "Basic"},
+        )
     # Check if ran first in DB
 
 @app.get("/config")
