@@ -5,7 +5,6 @@ from deta import Deta
 app = FastAPI()
 deta = Deta()
 
-client_type = None
 dbgSplashpage = f"""
 
  ▄         ▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄ 
@@ -20,23 +19,21 @@ dbgSplashpage = f"""
 ▐░░▌     ▐░░▌▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
  ▀▀       ▀▀  ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀ 
                                        
-Powered by https://Deta.sh
+Powered by https://deta.sh
 
 
 Deta Project:\t{deta.project_id}
-Client Type:\t{client_type}
+Client Type:\t{os.getenv("client_type")}
 Instance Slug:\t{os.getenv("DETA_PATH")}
 Running on Micro:\t{os.getenv("DETA_RUNTIME")}
 """
 
-@app.get("/init")
+@app.get("/")
 async def init():
+    # Password check
     # Loading animation
     # Redirect to done
-    client_type = os.getenv("client_type")
-    if client_type is not None:
-        return dbgSplashpage
-    return Response("Bad request", status_code=400)
+    return dbgSplashpage
 
 
 @app.get("/config")
