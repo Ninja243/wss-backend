@@ -60,7 +60,7 @@ def password_check(credentials: HTTPBasicCredentials = Depends(security)):
     else:
         raise HTTPException(
             status_code=401,
-            detail="Incorrect Login",
+            detail=f"Incorrect Login {credentials.username} {credentials.password} != {str(base.get('password'))}",
             headers={"WWW-Authenticate": "Basic"},
         )
 
