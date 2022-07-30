@@ -76,7 +76,7 @@ async def splash():
 
     # Loading animation
     # Redirect to done
-    return str(json.loads(str(base.get('Password')))['key'])
+    return json.loads(str(base.get('Password'))).get("key")
     return RedirectResponse(f"https://{os.getenv('DETA_PATH')}.deta.dev/init")
 
 
