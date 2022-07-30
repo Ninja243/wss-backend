@@ -1,0 +1,11 @@
+{
+	"name": "wss_backend",
+	"description": "WSS Backend",
+	"env": [
+		{
+			"key": "Password",
+			"description": "The password with which your data will be encryped",
+			"required": true 
+		}
+	]
+}
