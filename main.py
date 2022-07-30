@@ -69,7 +69,7 @@ async def splash():
     # Password store
     base = deta.Base("wss")
     try: # TODO hash and salt
-        base.insert(key="password", os.getenv("password")) # type: ignore   The env will always be set and even if it's not it will fail gracefully
+        base.insert(key="password", data=os.getenv("password")) # type: ignore   The env will always be set and even if it's not it will fail gracefully
     except:
         print("[!] Password already set, cannot reset")
 
