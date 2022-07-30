@@ -53,6 +53,17 @@ splash_screen = f"""
 </body>
 """
 
+def password_check(credentials: HTTPBasicCredentials = Depends(security)):
+    base = deta.Base("wss")
+    if secrets.compare_digest(str(base.get("password")), credentials.password):
+        return "admin" 
+    else:
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect Login",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
 @app.get("/")
 async def splash():
     # Password store
@@ -68,16 +79,8 @@ async def splash():
 
 
 @app.get("/init")
-async def init(credentials: HTTPBasicCredentials = Depends(security)):
-    base = deta.Base("wss")
-    if secrets.compare_digest(str(base.get("password")), credentials.password):
-        return Response(debug_page, media_type="text/html")
-    else:
-        raise HTTPException(
-            status_code=401,
-            detail="Incorrect Login",
-            headers={"WWW-Authenticate": "Basic"},
-        )
+async def init(user = Depends(password_check)):
+    return Response(debug_page, media_type="text/html")
     # Check if ran first in DB
 
 @app.get("/config")
