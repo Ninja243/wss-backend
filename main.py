@@ -61,7 +61,7 @@ def password_check(credentials: HTTPBasicCredentials = Depends(security)):
     else:
         raise HTTPException(
             status_code=401,
-            detail=f"Incorrect Login {str(json.loads(str(base.get('Password')))['key'])}",
+            detail=f"Incorrect Login",
             headers={"WWW-Authenticate": "Basic"},
         )
 
@@ -76,6 +76,7 @@ async def splash():
 
     # Loading animation
     # Redirect to done
+    return str(json.loads(str(base.get('Password')))['key'])
     return RedirectResponse(f"https://{os.getenv('DETA_PATH')}.deta.dev/init")
 
 
