@@ -56,12 +56,12 @@ splash_screen = f"""
 
 def password_check(credentials: HTTPBasicCredentials = Depends(security)):
     base = deta.Base("wss")
-    if secrets.compare_digest(json.loads(str(base.get("Password")))["key"], credentials.password):
+    if secrets.compare_digest(str(json.loads(str(base.get("Password")))["key"]), credentials.password):
         return "admin" 
     else:
         raise HTTPException(
             status_code=401,
-            detail=f"Incorrect Login",
+            detail=f"Incorrect Login {str(json.loads(str(base.get('Password')))['key'])}",
             headers={"WWW-Authenticate": "Basic"},
         )
 
