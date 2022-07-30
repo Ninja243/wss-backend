@@ -1,7 +1,8 @@
 import os
 import secrets
-from fastapi import FastAPI, Response, Depends, FastAPI, HTTPException, status
+from fastapi import FastAPI, Response, Depends, FastAPI
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi.responses import RedirectResponse
 from deta import Deta
 
 app = FastAPI()
@@ -63,10 +64,10 @@ async def splash():
 
     # Loading animation
     # Redirect to done
-    return Response(splash_screen, media_type="text/html")
+    return RedirectResponse(f"https://{os.getenv('DETA_PATH')}.deta.dev/init")
 
 
-@app.post("/init")
+@app.get("/init")
 async def init(credentials: HTTPBasicCredentials = Depends(security)):
     base = deta.Base("wss")
     if secrets.compare_digest(str(base.get("password")), credentials.password):
