@@ -9,5 +9,5 @@
 			"required": true 
 		}
 	],
-	"cron": "1 minutes"
+	"cron": "1 minute"
 }

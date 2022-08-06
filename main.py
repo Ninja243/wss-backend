@@ -1,20 +1,20 @@
-from enum import Enum
 import os
+import json
 from fastapi import FastAPI, Response, Depends, FastAPI, HTTPException
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from passlib.hash import bcrypt
 from deta import Deta
-import json
-from deta import app
-app = app(FastAPI())
+from enum import Enum
+from deta import App
 
+app = App(FastAPI())
 deta = Deta()
 security = HTTPBasic()
-
 
 def getFromBase(key):
     base = deta.Base("wss")
     return str(json.loads(str(base.get(key) or "{}").replace("'", "\"")).get("value"))
+
 
 def password_check(credentials: HTTPBasicCredentials = Depends(security)):
     base = deta.Base("wss")
@@ -27,10 +27,12 @@ def password_check(credentials: HTTPBasicCredentials = Depends(security)):
             headers={"WWW-Authenticate": "Basic"},
         )
 
+
 class Client_Type(Enum):
     android = 1
     email = 2
     ios = 3
+
 
 warnings = ""
 
@@ -81,17 +83,19 @@ Nonce:\t\t\t\t{getFromBase("nonce")}
 </body>
 """
 
+
 @app.get("/")
-async def splash(user = Depends(password_check)):
+async def splash(user=Depends(password_check)):
     # This will be the root page
-       # Check to see if done with setup first
+    # Check to see if done with setup first
     base = deta.Base("wss")
     if base.get("init_complete"):
         return Response(debug_page, media_type="text/html")
     return Response(loading_page, media_type="text/html")
 
+
 @app.post("/register_client")
-async def register_client(data:str,  user = Depends(password_check)):
+async def register_client(data: str,  user=Depends(password_check)):
     base = deta.Base("wss")
     stored_nonce = base.get(key="nonce")
     nonce = json.loads(data).get("nonce")
@@ -99,17 +103,23 @@ async def register_client(data:str,  user = Depends(password_check)):
         return "TODO: Register notifications"
     raise HTTPException(status_code=403, detail="Nonce doesn't match")
 
+
 @app.get("/rss")
-async def rss(user = Depends(password_check)):
+async def rss(user=Depends(password_check)):
     print("[!] TODO")
 
+
 @app.lib.cron()
-def crawler():
+def crawler(event):
     base = deta.Base("wss")
     init_complete = base.get("init_complete")
     if not init_complete:
-        try: # TODO hash and salt
-            base.insert(key="Password", data=bcrypt.hash(os.getenv("Password"))) # type: ignore   The env will always be set and even if it's not it will fail gracefully
+        try:  # TODO hash and salt
+            # type: ignore   The env will always be set and even if it's not it will fail gracefully
+            if os.getenv("Password") is None:
+                raise Exception("No password given")
+            base.insert(key="Password", data=bcrypt.hash(
+                str(os.getenv("Password"))))
             base.insert(key="Subscriptions", data={})
             base.insert(key="Batch", data=1)
             base.insert(key="Cursor", data=0)
@@ -118,4 +128,4 @@ def crawler():
         except Exception as e:
             print(f"[!] {e}")
     else:
-        print("[!] Todo")
+        print(f"[!] Todo")
