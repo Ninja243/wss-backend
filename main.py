@@ -1,14 +1,38 @@
+from enum import Enum
 import os
-import secrets
 from fastapi import FastAPI, Response, Depends, FastAPI, HTTPException
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from fastapi.responses import RedirectResponse
+from passlib.hash import bcrypt
 from deta import Deta
 import json
+from deta import app
+app = app(FastAPI())
 
-app = FastAPI()
 deta = Deta()
 security = HTTPBasic()
+
+
+def getFromBase(key):
+    base = deta.Base("wss")
+    return str(json.loads(str(base.get(key) or "{}").replace("'", "\"")).get("value"))
+
+def password_check(credentials: HTTPBasicCredentials = Depends(security)):
+    base = deta.Base("wss")
+    if bcrypt.verify(getFromBase("Password"), credentials.password):
+        return
+    else:
+        raise HTTPException(
+            status_code=401,
+            detail=f"Incorrect Login",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+class Client_Type(Enum):
+    android = 1
+    email = 2
+    ios = 3
+
+warnings = ""
 
 logo = """
  ▄         ▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄ 
@@ -25,71 +49,73 @@ logo = """
                                        
 Powered by <a href="https://deta.sh">deta.sh</a>"""
 
-debug_page = f"""
+header = """
 <header>
     <title>WSS Debug Page</title>
 </header>
+"""
+
+loading_page = f"""
+{header}
+<body><pre style="color:purple;">
+Instance starting...
+</body>
+"""
+
+debug_page = f"""
+{header}
 <body><pre style="color:purple;">
 {logo}
 
 Deta Project:\t\t\t{deta.project_id}
-Client Type:\t\t\t{os.getenv("client_type")}
 Instance Slug:\t\t\t{os.getenv("DETA_PATH")}
 Running on Micro:\t\t{bool(os.getenv("DETA_RUNTIME"))}
+Nonce:\t\t\t\t{getFromBase("nonce")}
 </pre>
+
+<pre style="color:red;">
+{warnings}
+</pre>
+
+<p>👉<a href="wss://register_micro?slug={os.getenv("DETA_PATH")}&nonce={str(deta.Base("wss").get("nonce"))}">Click here to register your client with this instance.</a></p>
 </body>
 """
-
-splash_screen = f"""
-<header>
-    <title>WSS Debug Page</title>
-</header>
-<body><pre style="color:purple;">
-{logo}
-</pre>
-<form action="" method="post">
-    <button name="foo" value="upvote">Upvote</button>
-</form>
-</body>
-"""
-
-def password_check(credentials: HTTPBasicCredentials = Depends(security)):
-    base = deta.Base("wss")
-    if secrets.compare_digest(str(json.loads(str(base.get('Password')).replace("'", "\"")).get("value")), credentials.password):
-        return
-    else:
-        raise HTTPException(
-            status_code=401,
-            detail=f"Incorrect Login",
-            headers={"WWW-Authenticate": "Basic"},
-        )
 
 @app.get("/")
-async def splash():
-    # Password store
+async def splash(user = Depends(password_check)):
+    # This will be the root page
+       # Check to see if done with setup first
     base = deta.Base("wss")
-    try: # TODO hash and salt
-        base.insert(key="Password", data=os.getenv("Password")) # type: ignore   The env will always be set and even if it's not it will fail gracefully
-    except:
-        print("[!] Password already set, cannot reset")
+    if base.get("init_complete"):
+        return Response(debug_page, media_type="text/html")
+    return Response(loading_page, media_type="text/html")
 
-    # Loading animation
-    # Redirect to done
-    return RedirectResponse(f"/init")
+@app.post("/register_client")
+async def register_client(data:str,  user = Depends(password_check)):
+    base = deta.Base("wss")
+    stored_nonce = base.get(key="nonce")
+    nonce = json.loads(data).get("nonce")
+    if nonce == stored_nonce:
+        return "TODO: Register notifications"
+    raise HTTPException(status_code=403, detail="Nonce doesn't match")
 
+@app.get("/rss")
+async def rss(user = Depends(password_check)):
+    print("[!] TODO")
 
-@app.get("/init")
-async def init(user = Depends(password_check)):
-    return Response(debug_page, media_type="text/html")
-
-@app.get("/config")
-async def get_config():
-    # Poll DB
-    # Retrieve Settings
-    # Retrieve Subscriptions
-    return "TODO: Make redirect to android intent"
-
-
-@app.get("/console")
-async def get_console():
-    return "TODO"
+@app.lib.cron()
+def crawler():
+    base = deta.Base("wss")
+    init_complete = base.get("init_complete")
+    if not init_complete:
+        try: # TODO hash and salt
+            base.insert(key="Password", data=bcrypt.hash(os.getenv("Password"))) # type: ignore   The env will always be set and even if it's not it will fail gracefully
+            base.insert(key="Subscriptions", data={})
+            base.insert(key="Batch", data=1)
+            base.insert(key="Cursor", data=0)
+            base.insert(key="Clients", data={})
+            base.insert(key="init_complete", data=True)
+        except Exception as e:
+            print(f"[!] {e}")
+    else:
+        print("[!] Todo")

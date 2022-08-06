@@ -1,11 +1,11 @@
 {
 	"name": "WSS Backend",
-	"description": "This instance will be the server that notifies you if anything on the websites you have subscribed to has changed and will also store important info like your settings.",
+	"description": "To log into your instance (the username is admin), please set a password.",
 	"runtime": "python3.9",
 	"env": [
 		{
 			"key": "Password",
-			"description": "The password with which your data will be encryped",
+			"description": "This password will be used to log into your instance.",
 			"required": true 
 		}
 	]
