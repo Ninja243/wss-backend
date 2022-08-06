@@ -8,5 +8,6 @@
 			"description": "This password will be used to log into your instance.",
 			"required": true 
 		}
-	]
+	],
+	"cron": "1 minutes"
 }
