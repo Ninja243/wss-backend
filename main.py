@@ -12,8 +12,9 @@ app = App(FastAPI())
 deta = Deta()
 security = HTTPBasic()
 
-def getFromBase(key):
-    base = deta.Base("wss")
+def getFromBase(key, base=None):
+    if base is None:
+        base = deta.Base("wss")
     return str(json.loads(str(base.get(key) or "{}").replace("'", "\"")).get("value"))
 
 
@@ -127,10 +128,10 @@ def crawler(event):
         except Exception as e:
             print(f"[!] {e}")
     else:
-        cursor = base.get("Cursor")
-        clients = base.get("Clients")
-        subscriptions = base.get("Subscriptions")
-        batch = base.get("Batch")
+        cursor = getFromBase("Cursor", base)
+        clients = getFromBase("Clients", base)
+        subscriptions = getFromBase("Subscriptions", base)
+        batch = getFromBase("Batch", base)
         print(batch, cursor, clients, subscriptions)
         while int(batch) > 0:
             print(f"{subscriptions[cursor % len(subscriptions)]}")
