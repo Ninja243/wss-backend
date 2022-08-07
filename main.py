@@ -5,9 +5,10 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from passlib.hash import bcrypt
 from deta import Deta
 from enum import Enum
-from deta import App
+#from deta import App
 
-app = App(FastAPI())
+#app = App(FastAPI())
+app = FastAPI()
 deta = Deta()
 security = HTTPBasic()
 
@@ -17,8 +18,7 @@ def getFromBase(key):
 
 
 def password_check(credentials: HTTPBasicCredentials = Depends(security)):
-    base = deta.Base("wss")
-    if bcrypt.verify(getFromBase("Password"), credentials.password):
+    if bcrypt.verify(credentials.password, getFromBase("Password")):
         return
     else:
         raise HTTPException(
@@ -114,8 +114,7 @@ def crawler(event):
     base = deta.Base("wss")
     init_complete = base.get("init_complete")
     if not init_complete:
-        try:  # TODO hash and salt
-            # type: ignore   The env will always be set and even if it's not it will fail gracefully
+        try:  
             if os.getenv("Password") is None:
                 raise Exception("No password given")
             base.insert(key="Password", data=bcrypt.hash(
@@ -128,4 +127,13 @@ def crawler(event):
         except Exception as e:
             print(f"[!] {e}")
     else:
-        print(f"[!] Todo")
+        cursor = base.get("Cursor")
+        clients = base.get("Clients")
+        subscriptions = base.get("Subscriptions")
+        batch = base.get("Batch")
+        while int(batch) > 0:
+            print(f"{subscriptions[cursor % len(subscriptions)]}")
+            cursor = cursor + 1
+            batch = batch - 1
+
+
