@@ -131,6 +131,7 @@ def crawler(event):
         clients = base.get("Clients")
         subscriptions = base.get("Subscriptions")
         batch = base.get("Batch")
+        print(batch, cursor, clients, subscriptions)
         while int(batch) > 0:
             print(f"{subscriptions[cursor % len(subscriptions)]}")
             cursor = cursor + 1
