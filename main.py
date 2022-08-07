@@ -119,7 +119,7 @@ def crawler(event):
                 raise Exception("No password given")
             base.insert(key="Password", data=bcrypt.hash(
                 str(os.getenv("Password"))))
-            base.insert(key="Subscriptions", data={})
+            base.insert(key="Subscriptions", data=[])
             base.insert(key="Batch", data=1)
             base.insert(key="Cursor", data=0)
             base.insert(key="Clients", data={})
