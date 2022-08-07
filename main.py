@@ -5,10 +5,10 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from passlib.hash import bcrypt
 from deta import Deta
 from enum import Enum
-#from deta import App
+from deta import App
 
-#app = App(FastAPI())
-app = FastAPI()
+app = App(FastAPI())
+#app = FastAPI()
 deta = Deta()
 security = HTTPBasic()
 
