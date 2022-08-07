@@ -132,10 +132,14 @@ def crawler(event):
         clients = getFromBase("Clients", base)
         subscriptions = getFromBase("Subscriptions", base)
         batch = getFromBase("Batch", base)
-        print(batch, cursor, clients, subscriptions)
+        if (subscriptions is None) or (clients is None) or (len(subscriptions) < 1) or (len(clients) < 1):
+            return "[!] Nothing to do"
         while int(batch) > 0:
             print(f"{subscriptions[cursor % len(subscriptions)]}")
             cursor = cursor + 1
+            # Don't let the cursor number get too big
+            if cursor > len(subscriptions):
+                cursor = cursor - len(subscriptions)
             batch = batch - 1
 
 
