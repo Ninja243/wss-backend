@@ -1,0 +1,1 @@
+deta clone --name WSS-Backend --project default && cd WSS-Backend && deta visor enable && cd .. && rm -rf WSS-Backend

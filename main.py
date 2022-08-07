@@ -3,6 +3,7 @@ import json
 from fastapi import FastAPI, Response, Depends, FastAPI, HTTPException
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from passlib.hash import bcrypt
+from pydantic import BaseModel
 from deta import Deta
 from enum import Enum
 from deta import App
@@ -34,6 +35,10 @@ class Client_Type(Enum):
     email = 2
     ios = 3
 
+
+class Client():
+    id: str   # Email address / Firebase id
+    client_type: Client_Type
 
 warnings = ""
 
@@ -94,6 +99,17 @@ async def splash(user=Depends(password_check)):
         return Response(debug_page, media_type="text/html")
     return Response(loading_page, media_type="text/html")
 
+@app.get("/clients")
+async def get_clients(user=Depends(password_check)):
+    return Response(getFromBase("Clients"), media_type="application/json")
+
+@app.post("/clients")
+async def put_clients(client: Client, user=Depends(password_check)):
+    return Response(client, 205)
+
+@app.delete("/clients")
+async def delete_clients(clients: str, user=Depends(password_check)):
+    return clients
 
 @app.post("/register_client")
 async def register_client(data: str,  user=Depends(password_check)):
