@@ -15,7 +15,7 @@ security = HTTPBasic()
 def getFromBase(key, base=None):
     if base is None:
         base = deta.Base("wss")
-    return str(json.loads(str(base.get(key) or "{}").replace("'", "\"")).get("value"))
+    return json.loads(str(base.get(key) or "{}").replace("'", "\"")).get("value")
 
 
 def password_check(credentials: HTTPBasicCredentials = Depends(security)):
