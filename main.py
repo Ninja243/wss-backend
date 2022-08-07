@@ -36,7 +36,7 @@ class Client_Type(Enum):
     ios = 3
 
 
-class Client():
+class Client(BaseModel):
     id: str   # Email address / Firebase id
     client_type: Client_Type
 
